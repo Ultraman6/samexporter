@@ -16,7 +16,7 @@ class SegmentAnything2ONNX:
             decoder_model_path, self.encoder.input_shape[2:]
         )
 
-    def encode(self, cv_image: np.ndarray) -> list[np.ndarray]:
+    def encode(self, cv_image: np.ndarray) -> dict[str: np.ndarray]:
         original_size = cv_image.shape[:2]
         high_res_feats_0, high_res_feats_1, image_embed = self.encoder(cv_image)
         return {

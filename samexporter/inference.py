@@ -20,37 +20,37 @@ argparser = argparse.ArgumentParser()
 argparser.add_argument(
     "--encoder_model",
     type=str,
-    default="output_models/sam_vit_h_4b8939.encoder.onnx",
+    default="E:\Models\samexporter\sam\export\sam_vit_b_01ec64.encoder.onnx",
     help="Path to the ONNX encoder model",
 )
 argparser.add_argument(
     "--decoder_model",
     type=str,
-    default="output_models/sam_vit_h_4b8939.decoder.onnx",
+    default="E:\Models\samexporter\sam\export\sam_vit_b_01ec64.decoder.onnx",
     help="Path to the ONNX decoder model",
 )
 argparser.add_argument(
     "--image",
     type=str,
-    default="images/truck.jpg",
+    default="E:\GitHub\samexporter\images/truck.jpg",
     help="Path to the image",
 )
 argparser.add_argument(
     "--prompt",
     type=str,
-    default="images/truck.json",
+    default="E:\GitHub\samexporter\images/truck_prompt.json",
     help="Path to the image",
 )
 argparser.add_argument(
     "--output",
     type=str,
-    default=None,
+    default='E:\GitHub\samexporter/results/trunk.jpg',
     help="Path to the output image",
 )
 argparser.add_argument(
     "--show",
-    action="store_true",
-    help="Show the result",
+    type=bool,
+    default=True,
 )
 argparser.add_argument(
     "--sam_variant",

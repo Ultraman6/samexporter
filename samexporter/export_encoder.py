@@ -13,36 +13,33 @@ import shutil
 import argparse
 import warnings
 
-parser = argparse.ArgumentParser(
-    description="Export the SAM image encoder to an ONNX model."
-)
+parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--checkpoint",
     type=str,
-    required=True,
-    help="The path to the SAM model checkpoint.",
+    default="E:\Models\samexporter\sam\origin\sam_vit_b_01ec64.pth",
 )
 
 parser.add_argument(
     "--output",
     type=str,
-    required=True,
-    help="The filename to save the ONNX model to.",
+    default="E:\Models\samexporter\sam\export\sam_vit_b_01ec64.encoder.onnx",
 )
 
 parser.add_argument(
     "--model-type",
     type=str,
-    required=True,
-    help="In ['default', 'vit_h', 'vit_l', 'vit_b', 'mobile']. "
+    default='vit_b',
+    help="In ['default', 'vit_h', 'vit_l', 'vit_b']. "
     "Which type of SAM model to export.",
 )
 
 parser.add_argument(
     "--use-preprocess",
-    action="store_true",
-    help=("Embed pre-processing into the model",),
+    type=bool,
+    default=True,
+    help="Embed pre-processing into the model",
 )
 
 parser.add_argument(
@@ -55,17 +52,14 @@ parser.add_argument(
 parser.add_argument(
     "--quantize-out",
     type=str,
-    default=None,
-    help=(
-        "If set, will quantize the model and save it with this name. "
-        "Quantization is performed with quantize_dynamic from "
-        "onnxruntime.quantization.quantize."
-    ),
+    default='E:\Models\samexporter\sam\sam_vit_l_0b3195.encoder.quant.onnx'
 )
+
 
 parser.add_argument(
     "--gelu-approximate",
-    action="store_true",
+    type=bool,
+    default=False,
     help=(
         "Replace GELU operations with approximations using tanh. Useful "
         "for some runtimes that have slow or unimplemented erf ops, used in GELU."

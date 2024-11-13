@@ -38,9 +38,12 @@ class ImageEncoderOnnxModel(nn.Module):
 
     @torch.no_grad()
     def forward(self, input_image: torch.Tensor):
+        print(input_image.shape)
         if self.use_preprocess:
             input_image = self.preprocess(input_image)
+        print(input_image.shape)
         image_embeddings = self.image_encoder(input_image)
+        print(image_embeddings.shape)
         return image_embeddings
 
     def preprocess(self, x: torch.Tensor) -> torch.Tensor:

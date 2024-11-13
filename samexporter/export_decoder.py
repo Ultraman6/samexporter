@@ -16,45 +16,36 @@ import warnings
 
 try:
     import onnxruntime  # type: ignore
-
     onnxruntime_exists = True
 except ImportError:
     onnxruntime_exists = False
 
-parser = argparse.ArgumentParser(
-    description="Export the SAM prompt encoder and mask decoder to an ONNX model."
-)
+parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--checkpoint",
     type=str,
-    required=True,
-    help="The path to the SAM model checkpoint.",
+    default="E:\Models\samexporter\sam\origin\sam_vit_b_01ec64.pth",
 )
 
 parser.add_argument(
     "--output",
     type=str,
-    required=True,
-    help="The filename to save the ONNX model to.",
+    default="E:\Models\samexporter\sam\export\sam_vit_b_01ec64.decoder.onnx",
 )
 
 parser.add_argument(
     "--model-type",
     type=str,
-    required=True,
+    default='vit_b',
     help="In ['default', 'vit_h', 'vit_l', 'vit_b']. "
     "Which type of SAM model to export.",
 )
 
 parser.add_argument(
     "--return-single-mask",
-    action="store_true",
-    help=(
-        "If true, the exported ONNX model will only return the best mask, "
-        "instead of returning multiple masks. For high resolution images "
-        "this can improve runtime when upscaling masks is expensive."
-    ),
+    type=bool,
+    default=False,
 )
 
 parser.add_argument(
@@ -67,17 +58,13 @@ parser.add_argument(
 parser.add_argument(
     "--quantize-out",
     type=str,
-    default=None,
-    help=(
-        "If set, will quantize the model and save it with this name. "
-        "Quantization is performed with quantize_dynamic from "
-        "onnxruntime.quantization.quantize."
-    ),
+    default=None
 )
 
 parser.add_argument(
     "--gelu-approximate",
-    action="store_true",
+    type=bool,
+    default=False,
     help=(
         "Replace GELU operations with approximations using tanh. Useful "
         "for some runtimes that have slow or unimplemented erf ops, used in GELU."
@@ -86,7 +73,8 @@ parser.add_argument(
 
 parser.add_argument(
     "--use-stability-score",
-    action="store_true",
+    type=bool,
+    default=True,
     help=(
         "Replaces the model's predicted mask quality score with the stability "
         "score calculated on the low resolution masks using an offset of 1.0. "
@@ -95,7 +83,8 @@ parser.add_argument(
 
 parser.add_argument(
     "--return-extra-metrics",
-    action="store_true",
+    type=bool,
+    default=False,
     help=(
         "The model will return five results: (masks, scores, stability_scores, "
         "areas, low_res_logits) instead of the usual three. This can be "
@@ -129,9 +118,12 @@ def run_export(
             if isinstance(m, torch.nn.GELU):
                 m.approximate = "tanh"
 
-    dynamic_axes = {
-        "point_coords": {1: "num_points"},
-        "point_labels": {1: "num_points"},
+    dynamic_axes = {  # 支持image-batch、point-batch、point-depth
+        "image_embeddings": {0: "batch_size"},  # 动态批量大小
+        "point_coords": {0: "batch_size", 1: "num_points"},
+        "point_labels": {0: "batch_size", 1: "num_points"},
+        # "point_coords": {1: "num_points"},
+        # "point_labels": {1: "num_points"},
     }
 
     embed_dim = sam.prompt_encoder.embed_dim
@@ -201,7 +193,7 @@ if __name__ == "__main__":
         return_extra_metrics=args.return_extra_metrics,
     )
 
-    if args.quantize_out is not None:
+    if args.quantize_out:
         assert (
             onnxruntime_exists
         ), "onnxruntime is required to quantize the model."
